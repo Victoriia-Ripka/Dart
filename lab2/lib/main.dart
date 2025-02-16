@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -7,46 +8,20 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Lab2 - Fuel Composition Calculator',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Fuel Composition Calculator'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -54,69 +29,133 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  String errorText = '';
+  String resultText = '';
 
-  void _incrementCounter() {
+  final TextEditingController coalController = TextEditingController();
+  final TextEditingController fuelController = TextEditingController();
+  final TextEditingController gasController = TextEditingController();
+
+  final double qCoal = 20.47;
+  final double gVynCoal = 1.5;
+  final double aVynCoal = 0.8;
+  final double aRCoal = 25.2;
+  final double nZuCoal = 0.985;
+  final double kHSCoal = 0.0;
+
+  final double qFuel = 40.40;
+  final double gVynFuel = 0.0;
+  final double aVynFuel = 1.0;
+  final double aRFuel = 0.15;
+  final double nZuFuel = 0.985;
+  final double kHSFuel = 0.0;
+
+  final double qGas = 20.47;
+  final double gVynGas = 1.5;
+  final double aVynGas = 0.8;
+  final double aRGas = 25.2;
+  final double nZuGas = 0.985;
+  final double kHSGas = 0.0;
+
+  double calculateK(double q, double aVyn, double aR, double gVyn, double nZu, double kHS) {
+    return ((pow(10, 6) * aVyn * aR) / (q * (100 - gVyn))) * (1 - nZu) + kHS;
+  }
+
+  double calculateE(double k, double b, double q) {
+    return pow(10, -6) * k * b * q;
+  }
+
+  void doCalculations() {
+
+    final List<double?> values = [
+      double.tryParse(coalController.text),
+      double.tryParse(fuelController.text),
+      double.tryParse(gasController.text)
+    ];
+
+    if (values.contains(null)) {
+      setState(() {
+        resultText = "";
+        errorText = "Будь ласка, введіть всі значення";
+      });
+      return;
+    }
+
+    final double coalV = values[0]!;
+    final double fuelV = values[1]!;
+    final double gasV = values[2]!;
+
+    final double kCoalValue = double.parse(
+        calculateK(qCoal, aVynCoal, aRCoal, gVynCoal, nZuCoal, kHSCoal).toStringAsFixed(2));
+    final double eCoalValue = double.parse(
+        calculateE(kCoalValue, coalV, qCoal).toStringAsFixed(2));
+
+    final double kFuelValue = double.parse(
+        calculateK(qFuel, aVynFuel, aRFuel, gVynFuel, nZuFuel, kHSFuel).toStringAsFixed(2));
+    final double eFuelValue = double.parse(
+        calculateE(kFuelValue, fuelV, qFuel).toStringAsFixed(2));
+
+    final double kGasValue = 0.0;
+    final double eGasValue = double.parse(
+        calculateE(kGasValue, gasV, qGas).toStringAsFixed(2));
+
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      resultText= """
+      Показник емісії твердих частинок при спалюванні вугілля становитиме: $kCoalValue г/ГДж;
+      Валовий викид при спалюванні вугілля становитиме: $eCoalValue т.
+      Показник емісії твердих частинок при спалюванні мазуту становитиме: $kFuelValue г/ГДж;
+      Валовий викид при спалюванні мазуту становитиме: $eFuelValue т.
+      Показник емісії твердих частинок при спалюванні природного газу становитиме: $kGasValue г/ГДж;
+      Валовий викид при спалюванні природного газу становитиме: $eGasValue т. """;
     });
   }
 
+
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            TextField(
+              controller: coalController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Вугілля (kg)'),
             ),
+            TextField(
+              controller: fuelController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Мазут (kg)'),
+            ),
+            TextField(
+              controller: gasController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Природній газ (kg)'),
+            ),
+
+            ElevatedButton(onPressed: doCalculations, child: const Text("Розрахувати")),
+
+            if (errorText.isNotEmpty)
+              Text(
+                errorText,
+                style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+              ),
+
+            if (resultText.isNotEmpty)
+              Text(
+                resultText,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
