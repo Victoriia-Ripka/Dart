@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lab4/main.dart';
+
+class Routes {
+  static const calculator1 = 'calculator1';
+  static const calculator2 = 'calculator2';
+  static const calculator3 = 'calculator3';
+}
 
 class EntryScreen extends StatelessWidget {
+  const EntryScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -12,15 +19,15 @@ class EntryScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: () => context.goNamed(Routes.calculator1.name),
+              onPressed: () => context.goNamed(Routes.calculator1),
               child: Text("Go to Calculator 1"),
             ),
             ElevatedButton(
-              onPressed: () => context.goNamed(Routes.calculator2.name),
+              onPressed: () => context.goNamed(Routes.calculator2),
               child: Text("Go to Calculator 2"),
             ),
             ElevatedButton(
-              onPressed: () => context.goNamed(Routes.calculator3.name),
+              onPressed: () => context.goNamed(Routes.calculator3),
               child: Text("Go to Calculator 3"),
             ),
           ],

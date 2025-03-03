@@ -149,6 +149,10 @@ class CalculatorService {
       double.parse(i2LNmin.toStringAsFixed(2)),
     ];
   }
+
+  ceil(double d) {
+    return d == d.toInt() ? d.toInt() : d.toInt() + 1;
+  }
 }
 
 Future<List<dynamic>> loadCableData() async {
