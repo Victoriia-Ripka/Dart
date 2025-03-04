@@ -121,8 +121,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               children: [
                 Text("ЕП #${index + 1}"),
                 components.EPInputFields(
-                  epInput: epInput as components.EPInput,
-                  onUpdate: (updatedInput) => setState(() => epInputs[index] = updatedInput as data.EPInput),
+                  epInput: epInput as components.EPInput2,
+                  onUpdate: (updatedInput) => setState(() => epExtraInputs[index] = updatedInput as data.EPInput),
                 ),
                 const SizedBox(height: 10),
               ],
@@ -143,7 +143,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               children: [
                 Text("Крупні ЕП #${index + 1}"),
                 components.EPInputFields(
-                  epInput: epInput as components.EPInput,
+                  epInput: epInput as components.EPInput2,
                   onUpdate: (updatedInput) => setState(() => epExtraInputs[index] = updatedInput as data.EPInput),
                 ),
                 const SizedBox(height: 10),

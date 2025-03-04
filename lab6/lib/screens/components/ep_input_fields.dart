@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class EPInput {
+class EPInput2 {
   String name;
   String coeffUsefulAct;
   String coeffPower;
@@ -10,7 +10,7 @@ class EPInput {
   String coefUsage;
   String coeffReactPower;
 
-  EPInput({
+  EPInput2({
     this.name = '',
     this.coeffUsefulAct = '',
     this.coeffPower = '',
@@ -21,7 +21,7 @@ class EPInput {
     this.coeffReactPower = '',
   });
 
-  EPInput copyWith({
+  EPInput2 copyWith({
     String? name,
     String? coeffUsefulAct,
     String? coeffPower,
@@ -31,7 +31,7 @@ class EPInput {
     String? coefUsage,
     String? coeffReactPower,
   }) {
-    return EPInput(
+    return EPInput2(
       name: name ?? this.name,
       coeffUsefulAct: coeffUsefulAct ?? this.coeffUsefulAct,
       coeffPower: coeffPower ?? this.coeffPower,
@@ -45,8 +45,8 @@ class EPInput {
 }
 
 class EPInputFields extends StatelessWidget {
-  final EPInput epInput;
-  final Function(EPInput) onUpdate;
+  final EPInput2 epInput;
+  final Function(EPInput2) onUpdate;
 
   const EPInputFields({
     Key? key,
