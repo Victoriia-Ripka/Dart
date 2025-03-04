@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:lab6/data/ep_input.dart';
 import 'package:lab6/services/calculator_service.dart';
+import 'package:lab6/data/ep_input.dart' as model;
 import 'package:lab6/screens/components/ep_input_fields.dart';
 import 'package:lab6/screens/components/fancy_button.dart';
 import 'package:lab6/screens/components/header.dart';
@@ -24,8 +24,8 @@ class CalculatorScreen extends StatefulWidget {
 }
 
 class _CalculatorScreenState extends State<CalculatorScreen> {
-  final List<EPInput> epInputs = List.generate(8, (_) => EPInput());
-  final List<EPInput> epExtraInputs = List.generate(2, (_) => EPInput());
+  late final List<EPInput> epInputs = List.generate(8, (_) => EPInput());
+  late final List<EPInput> epExtraInputs = List.generate(2, (_) => EPInput());
   List<double> resultArray = List.filled(14, 0.0);
 
   static const double allNPh = 2330.0;
@@ -37,15 +37,13 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     try {
       final String jsonString = await rootBundle.loadString('assets/$fileName');
       final List<dynamic> parsedList = jsonDecode(jsonString);
-      final List<EPInput> parsedInputs = parsedList.map((e) => EPInput.fromJson(e)).toList();
+      final List<model.EPInput> parsedInputs = parsedList.map((e) => model.EPInput.fromJson(e as Map<String, dynamic>)).toList();
 
       setState(() {
         if (isExtra) {
-          epExtraInputs.clear();
-          epExtraInputs.addAll(parsedInputs);
+          epExtraInputs = List.of(parsedInputs); // Робимо копію списку
         } else {
-          epInputs.clear();
-          epInputs.addAll(parsedInputs);
+          epInputs = List.of(parsedInputs);
         }
       });
     } catch (e) {
@@ -105,11 +103,11 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Header(),
+          CustomHeader(),
           const SizedBox(height: 10),
-          const TitleText(text: "Завдання 1", fontSize: 14),
+          const CustomTitle(text: "Завдання 1"),
           const SizedBox(height: 10),
-          const TitleText(text: "Калькулятор розрахунку електричних навантажень об’єктів.", fontSize: 14),
+          const CustomTitle(text: "Калькулятор розрахунку електричних навантажень об’єктів."),
           const SizedBox(height: 20),
 
           ...epInputs.asMap().entries.map((entry) {
@@ -117,7 +115,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
             EPInput epInput = entry.value;
             return Column(
               children: [
-                Text("ЕП #${index + 1}", style: Theme.of(context).textTheme.headline6),
+                Text("ЕП #${index + 1}"),
                 EPInputFields(
                   epInput: epInput,
                   onUpdate: (updatedInput) => setState(() => epInputs[index] = updatedInput),
@@ -130,7 +128,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
           const SizedBox(height: 20),
           FancyButton(
             text: "Заповнити поля",
-            onPressed: () => loadJsonFromAssets("testInputs.json", false),
+            onClick: () => loadJsonFromAssets("testInputs.json", false),
           ),
 
           const SizedBox(height: 20),
@@ -139,7 +137,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
             EPInput epInput = entry.value;
             return Column(
               children: [
-                Text("Крупні ЕП #${index + 1}", style: Theme.of(context).textTheme.headline6),
+                Text("Крупні ЕП #${index + 1}"),
                 EPInputFields(
                   epInput: epInput,
                   onUpdate: (updatedInput) => setState(() => epExtraInputs[index] = updatedInput),
@@ -152,19 +150,19 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
           const SizedBox(height: 20),
           FancyButton(
             text: "Заповнити поля",
-            onPressed: () => loadJsonFromAssets("extraEPdata.json", true),
+            onClick: () => loadJsonFromAssets("extraEPdata.json", true),
           ),
 
           const SizedBox(height: 20),
           FancyButton(
             text: "Розрахувати",
-            onPressed: calculate,
+            onClick: calculate,
           ),
 
           const SizedBox(height: 20),
           FancyButton(
             text: "Повернутися назад",
-            onPressed: widget.goBack,
+            onClick: widget.goBack,
           ),
 
           if (resultArray.isNotEmpty && resultArray[0] > 0.0) ...[
