@@ -36,10 +36,10 @@ class CalculatorService {
   Future<List<dynamic>> loadCableData() async {
     try {
       // Load the cable data from the assets folder
-      String jsonString = await rootBundle.loadString('assets/cable_data.json');
+      String jsonString = await rootBundle.loadString('assets/data.json');
       return jsonDecode(jsonString);
     } catch (e) {
-      throw Exception("The file cable_data.json was not found in the assets folder.");
+      throw Exception("The file data.json was not found in the assets folder.");
     }
   }
 
@@ -158,9 +158,9 @@ class CalculatorService {
 Future<List<dynamic>> loadCableData() async {
   try {
     // Load JSON file from assets
-    String jsonString = await rootBundle.loadString('assets/cable_data.json');
+    String jsonString = await rootBundle.loadString('assets/data.json');
     return jsonDecode(jsonString);
   } catch (e) {
-    throw Exception("The file cable_data.json was not found in the assets folder.");
+    throw Exception("The file data.json was not found in the assets folder.");
   }
 }

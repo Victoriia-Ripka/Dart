@@ -33,11 +33,15 @@ class _Calculator1ScreenState extends State<Calculator1Screen> {
     calculatorService = CalculatorService();
   }
 
-  void calculateResult() {
+  void calculateResult() async {
+    final int calculation = await calculatorService.calculateCablesCompatibility(
+      conductor,
+      cableType,
+      timeRange.toDouble(),
+    );
+
     setState(() {
-      result = calculatorService
-          .calculateCablesCompatibility(conductor, cableType, timeRange.toDouble())
-          .toString();
+      result = calculation.toString();
     });
   }
 
