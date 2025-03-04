@@ -3,8 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lab6/services/calculator_service.dart';
-import 'package:lab6/data/ep_input.dart' as model;
-import 'package:lab6/screens/components/ep_input_fields.dart';
+import 'package:lab6/data/ep_input.dart' as data;
+import 'package:lab6/screens/components/ep_input_fields.dart' as components;
 import 'package:lab6/screens/components/fancy_button.dart';
 import 'package:lab6/screens/components/header.dart';
 import 'package:lab6/screens/components/title.dart';
@@ -24,8 +24,8 @@ class CalculatorScreen extends StatefulWidget {
 }
 
 class _CalculatorScreenState extends State<CalculatorScreen> {
-  late final List<EPInput> epInputs = List.generate(8, (_) => EPInput());
-  late final List<EPInput> epExtraInputs = List.generate(2, (_) => EPInput());
+  late List<data.EPInput> epInputs = List.generate(8, (_) => data.EPInput());
+  late List<data.EPInput> epExtraInputs = List.generate(2, (_) => data.EPInput());
   List<double> resultArray = List.filled(14, 0.0);
 
   static const double allNPh = 2330.0;
@@ -37,7 +37,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     try {
       final String jsonString = await rootBundle.loadString('assets/$fileName');
       final List<dynamic> parsedList = jsonDecode(jsonString);
-      final List<model.EPInput> parsedInputs = parsedList.map((e) => model.EPInput.fromJson(e as Map<String, dynamic>)).toList();
+      final List<data.EPInput> parsedInputs = parsedList.map((e) => data.EPInput.fromJson(e as Map<String, dynamic>)).toList();
 
       setState(() {
         if (isExtra) {
@@ -55,15 +55,19 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     try {
       final List<double> NPhList = widget.calculatorService.calculateNPh(epInputs);
       final double NPhSum = widget.calculatorService.calculateSumNPh(NPhList);
-      final List<double> I = widget.calculatorService.calculateI(epInputs);
-      final double sumCount = widget.calculatorService.calculateSumCount(epInputs);
+      // final List<double> I = widget.calculatorService.calculateI(epInputs);
+      // final double sumCount = widget.calculatorService.calculateSumCount(epInputs);
       final double KV = widget.calculatorService.calculateGroupUtilizationCoeff(epInputs);
-      final double nE = widget.calculatorService.calculateEfCount(NPhSum, epInputs);
+      final double nE = widget.calculatorService.calculateEfCount(NPhSum, epInputs).toDouble();
       const double Kp = 1.25;
       final double Pp = widget.calculatorService.calculatePp(Kp, epInputs);
-      final double Qp = widget.calculatorService.calculateQp(nE, epInputs);
+      final int nERounded = nE.round(); // Rounds the double to the nearest int
+      final double Qp = widget.calculatorService.calculateQp(nERounded, epInputs);
       final double Sp = widget.calculatorService.calculateSp(Pp, Qp);
-      final double Ip = widget.calculatorService.calculateIp(Pp, epInputs[3].voltage);
+      final double Ip = widget.calculatorService.calculateIp(
+        Pp,
+        double.tryParse(epInputs[3].voltage) ?? 1.0,
+      );
 
       final double allKV = allNPK / allNPh;
       final double allNe = pow(allNPh, 2) / allNP2;
@@ -71,7 +75,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       final double allPp = allKp * allNPK;
       final double allQp = allKp * allNPKtg;
       final double allSp = sqrt(pow(allPp, 2) + pow(allQp, 2));
-      final double allIp = allPp / epInputs[3].voltage;
+      final double allIp = allPp / (double.tryParse(epInputs[3].voltage) ?? 1.0);
 
       setState(() {
         resultArray = [
@@ -112,13 +116,13 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
           ...epInputs.asMap().entries.map((entry) {
             int index = entry.key;
-            EPInput epInput = entry.value;
+            data.EPInput epInput = entry.value;
             return Column(
               children: [
                 Text("ЕП #${index + 1}"),
-                EPInputFields(
-                  epInput: epInput,
-                  onUpdate: (updatedInput) => setState(() => epInputs[index] = updatedInput),
+                components.EPInputFields(
+                  epInput: epInput as components.EPInput,
+                  onUpdate: (updatedInput) => setState(() => epInputs[index] = updatedInput as data.EPInput),
                 ),
                 const SizedBox(height: 10),
               ],
@@ -134,13 +138,13 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
           const SizedBox(height: 20),
           ...epExtraInputs.asMap().entries.map((entry) {
             int index = entry.key;
-            EPInput epInput = entry.value;
+            data.EPInput epInput = entry.value;
             return Column(
               children: [
                 Text("Крупні ЕП #${index + 1}"),
-                EPInputFields(
-                  epInput: epInput,
-                  onUpdate: (updatedInput) => setState(() => epExtraInputs[index] = updatedInput),
+                components.EPInputFields(
+                  epInput: epInput as components.EPInput,
+                  onUpdate: (updatedInput) => setState(() => epExtraInputs[index] = updatedInput as data.EPInput),
                 ),
                 const SizedBox(height: 10),
               ],
