@@ -24,26 +24,54 @@ class CalculatorScreen extends StatefulWidget {
 }
 
 class _CalculatorScreenState extends State<CalculatorScreen> {
-  late List<data.EPInput> epInputs = List.generate(8, (_) => data.EPInput());
-  late List<data.EPInput> epExtraInputs = List.generate(2, (_) => data.EPInput());
+  late List<components.EPInputModel> epInputs = List.generate(8, (_) => components.EPInputModel());
+  late List<components.EPInputModel> epExtraInputs = List.generate(2, (_) => components.EPInputModel());
   List<double> resultArray = List.filled(14, 0.0);
+  final List<TextEditingController> controllers = List.generate(10, (_) => TextEditingController());
 
   static const double allNPh = 2330.0;
   static const double allNPK = 752.0;
   static const double allNPKtg = 657.0;
   static const double allNP2 = 96399.0;
 
+  @override
+  void dispose() {
+    for (var controller in controllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  void _updateEPInput(int index, components.EPInputModel updatedInput, {bool isExtra = false}) {
+    setState(() {
+      if (isExtra) {
+        epExtraInputs[index] = updatedInput;
+      } else {
+        epInputs[index] = updatedInput;
+      }
+    });
+  }
+
   Future<void> loadJsonFromAssets(String fileName, bool isExtra) async {
     try {
       final String jsonString = await rootBundle.loadString('assets/$fileName');
       final List<dynamic> parsedList = jsonDecode(jsonString);
-      final List<data.EPInput> parsedInputs = parsedList.map((e) => data.EPInput.fromJson(e as Map<String, dynamic>)).toList();
+
+      // Convert JSON into a list of EPInput
+      final List<data.EPInput> parsedInputs = parsedList
+          .map((e) => data.EPInput.fromJson(e as Map<String, dynamic>))
+          .toList();
+
+      // Convert EPInput list to EPInputModel list
+      final List<components.EPInputModel> convertedInputs = parsedInputs
+          .map((ep) => components.EPInputModel.fromEPInput(ep))
+          .toList();
 
       setState(() {
         if (isExtra) {
-          epExtraInputs = List.of(parsedInputs); // Робимо копію списку
+          epExtraInputs = convertedInputs;
         } else {
-          epInputs = List.of(parsedInputs);
+          epInputs = convertedInputs;
         }
       });
     } catch (e) {
@@ -114,15 +142,15 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
           const CustomTitle(text: "Калькулятор розрахунку електричних навантажень об’єктів."),
           const SizedBox(height: 20),
 
+          /// Standard EP Inputs
           ...epInputs.asMap().entries.map((entry) {
             int index = entry.key;
-            data.EPInput epInput = entry.value;
             return Column(
               children: [
                 Text("ЕП #${index + 1}"),
                 components.EPInputFields(
-                  epInput: epInput as components.EPInput2,
-                  onUpdate: (updatedInput) => setState(() => epExtraInputs[index] = updatedInput as data.EPInput),
+                  epInput: epInputs[index],
+                  onUpdate: (updatedInput) => _updateEPInput(index, updatedInput),
                 ),
                 const SizedBox(height: 10),
               ],
@@ -135,16 +163,16 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
             onClick: () => loadJsonFromAssets("testInputs.json", false),
           ),
 
+
           const SizedBox(height: 20),
           ...epExtraInputs.asMap().entries.map((entry) {
             int index = entry.key;
-            data.EPInput epInput = entry.value;
             return Column(
               children: [
                 Text("Крупні ЕП #${index + 1}"),
                 components.EPInputFields(
-                  epInput: epInput as components.EPInput2,
-                  onUpdate: (updatedInput) => setState(() => epExtraInputs[index] = updatedInput as data.EPInput),
+                  epInput: epExtraInputs[index],
+                  onUpdate: (updatedInput) => _updateEPInput(index, updatedInput, isExtra: true),
                 ),
                 const SizedBox(height: 10),
               ],

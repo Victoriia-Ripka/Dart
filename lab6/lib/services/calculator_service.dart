@@ -1,8 +1,9 @@
 import 'dart:math';
-import '../data/ep_input.dart';
+// import '../data/ep_input.dart';
+import 'package:lab6/screens/components/ep_input_fields.dart';
 
 class CalculatorService {
-  List<double> calculateNPK(List<EPInput> epInputs) {
+  List<double> calculateNPK(List<EPInputModel> epInputs) {
     return epInputs.map((input) {
       final count = int.tryParse(input.count) ?? 0;
       final capacity = double.tryParse(input.capacity) ?? 0.0;
@@ -11,7 +12,7 @@ class CalculatorService {
     }).toList();
   }
 
-  double calculatePKTgSum(List<EPInput> epInputs) {
+  double calculatePKTgSum(List<EPInputModel> epInputs) {
     final nPK = calculateNPK(epInputs);
     final kptg = epInputs.asMap().map((index, input) {
       final coeffReactPower = double.tryParse(input.coeffReactPower) ?? 0.0;
@@ -21,7 +22,7 @@ class CalculatorService {
     return kptg.sum();
   }
 
-  List<double> calculateNPh(List<EPInput> epInputs) {
+  List<double> calculateNPh(List<EPInputModel> epInputs) {
     return epInputs.map((input) {
       final count = int.tryParse(input.count) ?? 0;
       final capacity = double.tryParse(input.capacity) ?? 0.0;
@@ -33,7 +34,7 @@ class CalculatorService {
     return NPhList.sum();
   }
 
-  List<double> calculateI(List<EPInput> epInputs) {
+  List<double> calculateI(List<EPInputModel> epInputs) {
     return epInputs.map((input) {
       final count = int.tryParse(input.count) ?? 0;
       final capacity = double.tryParse(input.capacity) ?? 0.0;
@@ -51,11 +52,11 @@ class CalculatorService {
     }).toList();
   }
 
-  int calculateSumCount(List<EPInput> epInputs) {
+  int calculateSumCount(List<EPInputModel> epInputs) {
     return epInputs.fold(0, (sum, input) => sum + (int.tryParse(input.count) ?? 0));
   }
 
-  double calculateGroupUtilizationCoeff(List<EPInput> epInputs) {
+  double calculateGroupUtilizationCoeff(List<EPInputModel> epInputs) {
     final nPK = calculateNPK(epInputs);
     final nP = epInputs.map((input) {
       final count = int.tryParse(input.count) ?? 0;
@@ -66,7 +67,7 @@ class CalculatorService {
     return nPK.sum() / nP.sum();
   }
 
-  int calculateEfCount(double NPh, List<EPInput> epInputs) {
+  int calculateEfCount(double NPh, List<EPInputModel> epInputs) {
     final sum = epInputs.map((input) {
       final count = int.tryParse(input.count) ?? 0;
       final capacity = double.tryParse(input.capacity) ?? 0.0;
@@ -77,12 +78,12 @@ class CalculatorService {
     return result;
   }
 
-  double calculatePp(double Kp, List<EPInput> epInputs) {
+  double calculatePp(double Kp, List<EPInputModel> epInputs) {
     final nPK = calculateNPK(epInputs);
     return Kp * nPK.sum();
   }
 
-  double calculateQp(int en, List<EPInput> epInputs) {
+  double calculateQp(int en, List<EPInputModel> epInputs) {
     final kptg = calculatePKTgSum(epInputs);
     if (en <= 10) {
       return kptg * 1.1;
